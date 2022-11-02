@@ -7,33 +7,8 @@
 
 using namespace lexer;
 
-void test()
-{
-        std::vector<lexer::token> tokens;
-        std::string s1 = "create tbl (id integer, cnt integer)";
-        std::string s2 = "insert into tbl (id, cnt) values ('1', '12')";
-        std::string s3 = "insert into tbl (id, cnt) values ('5', '3')";
-        std::string s4 = "insert into tbl (id, cnt) values ('2', '6')";
-        std::string s5 = "select id from tbl where cnt < '7' " \
-        "intersect select id from tbl where cnt > '4'";
-
-        execute(s1);
-        execute(s2);
-        execute(s3);
-        execute(s4);
-        auto cols = execute(s5);
-        if (!cols.empty()) {
-                std::string res = cols.at(0).values.at(0)->GetValue();
-                if (res == "2")
-                        std::cout << "ok" << std::endl;
-        } else
-                std::cout << "not ok" << std::endl;
-
-}
-
 int main()
 {
-        test();
         Lexer lex;
         Storage st("testdb");
         parser::Parser prs(std::make_shared<Storage>(st));
