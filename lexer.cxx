@@ -87,6 +87,8 @@ std::string::iterator last, token &firstToken)
 
         while (first != last && isspace(*first))
                 std::advance(first, 1);
+        if (first == last)
+                return std::prev(first);
         if ((tokPos = getWord(first, last)) != last) {
                 std::string token(first, tokPos + 1);
                 std::transform(token.begin(), token.end(), token.begin(), ::toupper);

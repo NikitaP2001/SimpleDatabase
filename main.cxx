@@ -35,7 +35,7 @@ int main()
                         auto itTokBeg = tokens.begin();
                         auto root = 
                         prs.getTree(stmt::type::query, itTokBeg, tokens.end());
-                        if (root) {
+                        if (root && itTokBeg == tokens.end()) {
                                 try {
                                         auto response = root->execute("");
                                         Column col;
@@ -51,8 +51,9 @@ int main()
                                         std::cout << "[-] " << ex.what() << std::endl;
                                 }
                                 
+                        } else {
+                                std::cout << "parsing error" << std::endl;
                         }
-                        
                }
                 
         }
