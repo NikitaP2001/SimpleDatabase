@@ -1,9 +1,14 @@
-#include <windows.h>
-#include <tchar.h>
 #include <cstdio>
+
+#ifdef _WIN32
+#include <tchar.h>
+#include <windows.h>
+#endif
+
 #include "error.hpp"
 
 
+#ifdef _WIN32
 char *get_api_err_msg()
 {
     DWORD dwErr = GetLastError();
@@ -55,3 +60,4 @@ char *get_api_err_msg()
         strcpy(wszMsgBuff, "Error message not found");
     return wszMsgBuff;
 }
+#endif // _WIN32

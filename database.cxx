@@ -28,6 +28,21 @@ Response::Response(std::shared_ptr<stmt> st)
 }
 
 
+int Response::getColCount() const
+{
+        return m_columns.size();
+}
+
+
+int Response::getRowCount() const
+{
+        int size = 0;
+        if (!m_columns.empty())
+                size = m_columns.front().values.size();
+        return size;
+}
+
+
 void Response::pushColumn(Column &col)
 {
         m_columns.push_back(std::move(col));
@@ -96,13 +111,13 @@ void Query::popQuery(std::vector<Query*> &queries)
 }
 
 
-Response Query::execute(std::string tableName)
+Response Query::execute(std::string)
 {
         INFO("executing query");
         Response res;
         if (m_queries.size() == 1)
                 res = m_queries[0]->execute("");
-        return std::move(res);
+        return res;
 }
 
 Type::Type(std::shared_ptr<Storage> storage)
@@ -111,13 +126,13 @@ Type::Type(std::shared_ptr<Storage> storage)
 
 }
 
-Response Type::execute(std::string tableName)
+Response Type::execute(std::string)
 {
         INFO("executing type");
         Response ret;
 
         std::shared_ptr<stmt> st;
-        if (st = getStmt()) {
+        if ((st = getStmt())) {
                 ret.setStmt(st);
         } else {
                 ERR("Empty type token");
@@ -173,7 +188,7 @@ static void intersect(std::vector<Column> &colLeft, std::vector<Column> &colRigt
         }
 }
 
-Response Selection::execute(std::string tableName)
+Response Selection::execute(std::string)
 {
         INFO("executing selection");
         std::vector<Query*> chldQueries;
@@ -334,7 +349,6 @@ Deletion::Deletion(std::shared_ptr<Storage> storage)
 Response Deletion::execute(std::string tableName)
 {
         INFO("executing deletion");
-        Query *q1 = nullptr, *q2 = nullptr;
         std::vector<Query*> chldQueries;
         Column col;
         Response res;
@@ -358,9 +372,9 @@ Response Deletion::execute(std::string tableName)
                         otherCols.push_back(col);
                 cols = getStorage()->getCols(tableName);
                 if (!cols[0].values.empty() && !otherCols[0].values.empty()) {
-                        for (int i = 0; i < cols[0].values.size(); ) {
+                        for (uint32_t i = 0; i < cols[0].values.size(); ) {
                                 bool present = false;
-                                for (int j = 0; j < otherCols[0].values.size(); j++) {
+                                for (uint32_t j = 0; j < otherCols[0].values.size(); j++) {
                                         if (*(cols[0].values[i].get()) 
                                         == otherCols[0].values[j].get()) {
                                                 present = true;
@@ -394,7 +408,6 @@ Response Drop::execute(std::string tableName)
 {
         INFO("executing drop");
         std::vector<Query*> chldQueries;
-        Query *q = nullptr;
         popQuery(chldQueries);
 
         if (chldQueries.size() == 1) {
@@ -421,7 +434,7 @@ Creation::Creation(std::shared_ptr<Storage> storage)
 
 }
 
-Response Creation::execute(std::string tableName)
+Response Creation::execute(std::string)
 {
         INFO("executing creation");
         Response res;
@@ -436,12 +449,12 @@ Response Creation::execute(std::string tableName)
                         q1->execute("").getStmt(tableName);
                         if (!tableName) {
                                 ERR("failed get table name");
-                                return std::move(res);
+                                return res;
                         }
                         auto colDefs = q2->execute("").popDefs();
                         if (colDefs.empty()) {
                                 ERR("failed get col defs");
-                                return std::move(res);
+                                return res;
                         }
                         if (!getStorage()->createTable(tableName.get(), colDefs))
                                 throw std::runtime_error(
@@ -452,7 +465,7 @@ Response Creation::execute(std::string tableName)
         }
 
        
-        return std::move(res);
+        return res;
 }
 
 ColumnDefinitions::ColumnDefinitions(std::shared_ptr<Storage> storage)
@@ -461,7 +474,7 @@ ColumnDefinitions::ColumnDefinitions(std::shared_ptr<Storage> storage)
         
 }
 
-Response ColumnDefinitions::execute(std::string tableName)
+Response ColumnDefinitions::execute(std::string)
 {
         INFO("executing column definition");
         Response res;
@@ -488,8 +501,8 @@ Response ColumnDefinitions::execute(std::string tableName)
                         ERR("Inlvalid query format");
                 }
                 if (chldQueries.size() == 3) {
-                        if (q3 = dynamic_cast<ColumnDefinitions*>(
-                                chldQueries[2])) {
+                        if ((q3 = dynamic_cast<ColumnDefinitions*>(
+                                chldQueries[2]))) {
                                 res.pushDefs(q3->execute("").popDefs());
                         } else {
                                 ERR("invalid col-def format");
@@ -497,7 +510,7 @@ Response ColumnDefinitions::execute(std::string tableName)
                 }
         }
 
-        return std::move(res);
+        return res;
 }
 
 Insertion::Insertion(std::shared_ptr<Storage> storage)
@@ -577,7 +590,7 @@ PrimaryExpression::PrimaryExpression(std::shared_ptr<Storage> storage)
 
 }
 
-Response PrimaryExpression::execute(std::string tableName)
+Response PrimaryExpression::execute(std::string)
 {
         INFO("executing primary expression");
         Response ret;
@@ -601,7 +614,7 @@ ColNames::ColNames(std::shared_ptr<Storage> storage)
 
 }
 
-Response ColNames::execute(std::string tableName)
+Response ColNames::execute(std::string)
 {
         INFO("executing colnames");
         Response ret;
@@ -611,9 +624,9 @@ Response ColNames::execute(std::string tableName)
         lexer::token *tok = nullptr;
         popQuery(chldQueries);
         if (chldQueries.size() >= 1) {
-                if (q1 = dynamic_cast<Identifier*>(chldQueries[0])) {
+                if ((q1 = dynamic_cast<Identifier*>(chldQueries[0]))) {
                         if (q1->execute("").getStmt(st)) {
-                                if (tok = dynamic_cast<lexer::token*>(st.get())) {
+                                if ((tok = dynamic_cast<lexer::token*>(st.get()))) {
                                         Column col;
                                         col.name = tok->getValue().toString();
                                         ret.pushColumn(col);
@@ -624,7 +637,7 @@ Response ColNames::execute(std::string tableName)
                 ERR("wrong column names format");
         }
         if (chldQueries.size() == 2) {
-                if (q2 = dynamic_cast<ColNames*>(chldQueries[1])) {
+                if ((q2 = dynamic_cast<ColNames*>(chldQueries[1]))) {
                         Column col;
                         Response colRes = q2->execute("");
                         while (colRes.getColumn(col))
@@ -641,7 +654,7 @@ TableName::TableName(std::shared_ptr<Storage> storage)
 
 }
 
-Response TableName::execute(std::string tableName)
+Response TableName::execute(std::string)
 {
         INFO("executing table name");
         Response ret;
@@ -649,7 +662,7 @@ Response TableName::execute(std::string tableName)
         std::vector<Query*> chldQueries;
         popQuery(chldQueries);
         if (chldQueries.size() == 1) {
-                if (st = chldQueries[0]->getStmt()) {
+                if ((st = chldQueries[0]->getStmt())) {
                         ret.setStmt(st);
                 } else {
                         ERR("Empty name");
@@ -667,7 +680,7 @@ Values::Values(std::shared_ptr<Storage> storage)
 
 }
 
-Response Values::execute(std::string tableName)
+Response Values::execute(std::string)
 {
         INFO("executing values");
         Response ret;
@@ -677,9 +690,9 @@ Response Values::execute(std::string tableName)
         lexer::token *tok = nullptr;
         popQuery(chldQueries);
         if (chldQueries.size() >= 1) {
-                if (q1 = dynamic_cast<Literal*>(chldQueries[0])) {
+                if ((q1 = dynamic_cast<Literal*>(chldQueries[0]))) {
                         if (q1->execute("").getStmt(st)) {
-                                if (tok = dynamic_cast<lexer::token*>(st.get())) {
+                                if ((tok = dynamic_cast<lexer::token*>(st.get()))) {
                                         Column col;
                                         col.values.push_back(getDbValue(
                                                 tok->getValue().toString()));
@@ -691,7 +704,7 @@ Response Values::execute(std::string tableName)
                 ERR("wrong values format");
         }
         if (chldQueries.size() == 2) {
-                if (q2 = dynamic_cast<Values*>(chldQueries[1])) {
+                if ((q2 = dynamic_cast<Values*>(chldQueries[1]))) {
                         Column col;
                         Response res = q2->execute("");
                         while (res.getColumn(col))
@@ -708,12 +721,12 @@ Operator::Operator(std::shared_ptr<Storage> storage)
 
 }
 
-Response Operator::execute(std::string tableName)
+Response Operator::execute(std::string)
 {
         INFO("executing operator");
         Response ret;
         std::shared_ptr<stmt> st;
-        if (st = getStmt()) {
+        if ((st = getStmt())) {
                 ret.setStmt(st);
         } else {
                 ERR("Empty operator");
@@ -727,13 +740,13 @@ Identifier::Identifier(std::shared_ptr<Storage> storage)
 
 }
 
-Response Identifier::execute(std::string tableName)
+Response Identifier::execute(std::string)
 {
         INFO("executing identifier");
         Response ret;
         std::shared_ptr<stmt> st;
 
-        if (st = getStmt()) {
+        if ((st = getStmt())) {
                 ret.setStmt(st);
         } else {
                 ERR("Empty identifier");
@@ -747,12 +760,12 @@ Literal::Literal(std::shared_ptr<Storage> storage)
 
 }
 
-Response Literal::execute(std::string tableName)
+Response Literal::execute(std::string)
 {
         INFO("executing literal");
         Response ret;
         std::shared_ptr<stmt> st;
-        if (st = getStmt()) {
+        if ((st = getStmt())) {
                 ret.setStmt(st);
         } else {
                 ERR("Empty literal");

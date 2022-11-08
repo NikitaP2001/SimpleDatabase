@@ -1,6 +1,0 @@
-select from table tbl where id = '1'
-
-select from table tbl where id = '1' 
-INRERSECT select from tbl where id in('1', '2', '3')
-
-in('1', '2', '3', 'toktok  ')

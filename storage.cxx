@@ -66,7 +66,7 @@ std::unique_ptr<DbValue> Storage::createValue(const ColumnType &type)
                 default:
                         throw std::runtime_error("invalid type");
         }
-        return std::move(val);
+        return val;
 }
 
 bool Storage::readRow(std::fstream &fin, std::vector<Column> &cols, 
@@ -106,7 +106,7 @@ bool Storage::readTable(std::string tableName, std::vector<Column> &cols)
         cols.clear();
         if (fin.read((char*)&tblHdr, sizeof(tblHdr))) {
                 types = readColumnTypes(fin, tblHdr.numberColumns);
-                for (int i = 0; i < types.size(); i++) {
+                for (uint32_t i = 0; i < types.size(); i++) {
                         Column col;
                         col.name = types[i].name;
                         cols.push_back(col);
@@ -362,7 +362,7 @@ bool Storage::createTable(stmt *identifier, std::vector<ColumnType> cols)
         lexer::token *nameTok;
         bool status = false;
 
-        if (nameTok = dynamic_cast<lexer::token*>(identifier)) {
+        if ((nameTok = dynamic_cast<lexer::token*>(identifier))) {
                 std::string tableName = nameTok->getValue().toString(); 
                 fs::path tblPath = fs::path(m_dbPath) / tableName; 
 

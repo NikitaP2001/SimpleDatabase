@@ -29,6 +29,9 @@ public:
         std::vector<Storage::ColumnType> popDefs();
         void pushDefs(std::vector<Storage::ColumnType> &&defs);
 
+        int getColCount() const;
+        int getRowCount() const;
+
 private:
         std::vector<Storage::ColumnType> m_defs;
         std::shared_ptr<stmt> m_statement;

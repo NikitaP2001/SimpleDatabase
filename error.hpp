@@ -1,7 +1,14 @@
 #pragma once
-#include <windows.h>
-#include <psapi.h>
-#include <tlhelp32.h>
+
+#ifdef __linux__
+#elif _WIN32
+        #include <windows.h>
+        #include <psapi.h>
+        #include <tlhelp32.h>
+#else
+
+#endif
+
 #include <stdexcept>
 #include <iostream>
 
