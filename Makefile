@@ -1,15 +1,16 @@
 SHELL=cmd.exe
 
-TARGET=test.exe
-
-RC_DIR = ./
-OBJ_DIR = ./
+BINPATH = $(realpath .)
+OBJ_DIR = $(realpath .)
+SRC_DIR = $(realpath .)
 INC_DIR = $(realpath .)
 TEST_DIR = $(realpath ./tests)
 
-CPP_SRC = $(wildcard *.cxx)
+TARGET=$(BINPATH)/test.exe
+
+CPP_SRC =  $(wildcard $(SRC_DIR)/*.cxx)
 ASM_SRC += $(wildcard *.asm)
-OBJECTS = $(CPP_SRC:.cxx=.o)
+OBJECTS = $(subst $(SRC_DIR)/,$(OBJ_DIR)/,$(CPP_SRC:.cxx=.o))
 OBJECTS += $(ASM_SRC:.asm=.o)
 TEST_SRC = $(wildcard $(TEST_DIR)/*.cxx)
 
@@ -19,15 +20,16 @@ AS=@ml64.exe 2>NUL
 LD=@c++
 RM=@-del /q 2>NUL
 
-CCFLAGS = -c
+CCFLAGS = -c -I $(INC_DIR)
 ACFLAGS = /c /Cp /I B:\masm32\include64 
 DBG_CCFLAGS = -DDEBUG -g
-LDLIBS=
 TESTLIB = $(LDLIBS)
 TESTLIB += -lgtest -lgtest_main
 ALDLIBS = /LIBPATH:B:\masm32\lib64\
 RLS_CCFLAGS = -s -fdata-sections -ffunction-sections -O3
 RLS_LDFLAGS = -Wl,--gc-sections,-s
+
+export
 
 %.o: %.cxx
 	@echo CC $<
@@ -37,17 +39,15 @@ RLS_LDFLAGS = -Wl,--gc-sections,-s
 	$(AS) $(ACFLAGS) $< /Fo $@
 
 all: CCFLAGS += $(DBG_CCFLAGS)
-all: $(TARGET) 
+all:
+	$(MAKE) -C cli
+	$(MAKE) -C server
 
 release: CCFLAGS += $(RLS_CCFLAGS)
 release: LDFLAGS += $(RLS_LDFLAGS)
-release: $(TARGET)
-
-
-$(TARGET): $(OBJECTS)
-	@echo LD $@
-	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-
+release:
+	$(MAKE) -C cli release
+	$(MAKE) -C server release
 
 TEST := $(TEST_SRC:.cxx=.exe)
 TEST_OBJ += $(filter-out main.o, $(OBJECTS))
@@ -64,3 +64,5 @@ runtest: $(TEST)
 clean:
 	$(RM) $(OBJECTS)	
 	$(RM) $(subst /,\,$(TEST))
+	$(MAKE) -C server clean
+	$(MAKE) -C cli clean
