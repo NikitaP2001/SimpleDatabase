@@ -40,14 +40,22 @@ export
 
 all: CCFLAGS += $(DBG_CCFLAGS)
 all:
-	$(MAKE) -C cli
-	$(MAKE) -C server
+	@echo building cli
+	@$(MAKE) --no-print-directory -C cli
+	@echo building server
+	@$(MAKE) --no-print-directory -C server
+	@echo building client
+	@$(MAKE) --no-print-directory -C client
 
 release: CCFLAGS += $(RLS_CCFLAGS)
 release: LDFLAGS += $(RLS_LDFLAGS)
 release:
-	$(MAKE) -C cli release
-	$(MAKE) -C server release
+	@echo building cli
+	@$(MAKE) --no-print-directory -C cli release
+	@echo building server
+	@$(MAKE) --no-print-directory -C server release
+	@echo building client
+	@$(MAKE) --no-print-directory -C client release
 
 TEST := $(TEST_SRC:.cxx=.exe)
 TEST_OBJ += $(filter-out main.o, $(OBJECTS))
@@ -62,7 +70,8 @@ runtest: $(TEST)
 
 .PHONY: clean
 clean:
-	$(RM) $(OBJECTS)	
-	$(RM) $(subst /,\,$(TEST))
-	$(MAKE) -C server clean
-	$(MAKE) -C cli clean
+	@$(RM) $(OBJECTS)	
+	@$(RM) $(subst /,\,$(TEST))
+	@$(MAKE) --no-print-directory -C server clean
+	@$(MAKE) --no-print-directory -C cli clean
+	@$(MAKE) --no-print-directory -C cli clean

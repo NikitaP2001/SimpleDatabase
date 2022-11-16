@@ -1,12 +1,27 @@
 #include <iostream>
 
-#ifdef _WIN32
-#include <w32api.h>
-#else
-#error Only win32 supported for server
-#endif // _WIN32
+#include "main.h"
+#include "server.h"
 
 int main()
 {
-        std::cout << "hello from server\n";
+        WSADATA data {};
+        int res = 0;
+
+        res = WSAStartup(MAKEWORD(2, 2), &data);
+        if (res) {
+                ERR("ws startup failed with error: " << res);
+                exit(1);
+        }
+
+        std::string portNumber = "1337";
+        auto srv = std::make_unique<server::Server>(portNumber);
+        if (srv->initialized()) {
+                srv->waitConnections();
+        } else {
+                ERR("server initialization failture");
+        }
+
+        WSACleanup();
+        return res;
 }

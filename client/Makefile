@@ -1,6 +1,7 @@
+# windows console client makefile
 SHELL=cmd.exe
 
-TARGET=$(BINPATH)/server.exe
+TARGET=$(BINPATH)/client.exe
 
 CPP_SRC = $(wildcard *.cxx)
 OBJECTS += $(CPP_SRC:.cxx=.o)
