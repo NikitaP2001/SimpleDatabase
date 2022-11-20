@@ -70,8 +70,8 @@ runtest: $(TEST)
 
 .PHONY: clean
 clean:
-	@$(RM) $(OBJECTS)	
+	@$(RM) $(subst /,\,$(OBJECTS))
 	@$(RM) $(subst /,\,$(TEST))
 	@$(MAKE) --no-print-directory -C server clean
 	@$(MAKE) --no-print-directory -C cli clean
-	@$(MAKE) --no-print-directory -C cli clean
+	@$(MAKE) --no-print-directory -C client clean

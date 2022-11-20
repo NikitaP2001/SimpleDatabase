@@ -3,7 +3,6 @@
 using namespace server;
 
 Server::Server(std::string_view port) noexcept
-        : m_connectionsRunner(&Server::runConnections, this)
 {
         DWORD status = 1;
         addrinfo *result = nullptr;
@@ -31,24 +30,21 @@ Server::Server(std::string_view port) noexcept
         }
 
         if (initialized()) {
-                status = bind(m_listenSocket, result->ai_addr, (int)result->ai_addrlen);
+                status = bind(m_listenSocket, result->ai_addr, result->ai_addrlen);
                 if (status == SOCKET_ERROR) {
                         ERR("bind failed");
                         freeaddrinfo(result);
-                        closesocket(m_listenSocket);
                         m_initialized = false;
                 }
         }
         
         if (initialized()) {
-                freeaddrinfo(result);
-
                 status = listen(m_listenSocket, SOMAXCONN);
                 if (status == SOCKET_ERROR) {
                         ERR("listen failed");
-                        closesocket(m_listenSocket);
                         m_initialized = false;
                 }
+                freeaddrinfo(result);
         }
 
 }
@@ -64,52 +60,31 @@ bool Server::waitConnections() noexcept
                 if (clientSocket == INVALID_SOCKET) {
                         ERR("accept failed");
                         wchar_t *s = NULL;
-                        FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
-                        NULL, WSAGetLastError(),
+                        FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER 
+                        | FORMAT_MESSAGE_FROM_SYSTEM 
+                        | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, WSAGetLastError(),
                         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                         (LPWSTR)&s, 0, NULL);
                         fprintf(stderr, "%S\n", s);
+                        status = false;
                         LocalFree(s);
                 } else {
-                        std::scoped_lock lck(m_connectionsMutex);
                         m_connections.push_back( std::make_unique<
                         connection::Connection>(clientSocket));
                 }
+
+                m_connections.remove_if([](auto &c) { return !c; });
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
 
         return status;
 }
 
-void Server::runConnections() noexcept
-{
-        while (true) {
-
-                {
-                        std::scoped_lock lck(m_connectionsMutex);
-                        m_connections.remove_if([](auto &c) 
-                        { return !c->recvCall(); });
-                }
-
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                {
-                        std::scoped_lock lck(m_connectionsMutex);
-                        if (!m_isRunning)
-                                break;
-                }
-        }
-}
-
 
 Server::~Server()
 {
-        {
-                std::scoped_lock lck(m_connectionsMutex);
-                m_isRunning = false;
-        }
-        m_connectionsRunner.join();
-
-        closesocket(m_listenSocket);
+        if (m_listenSocket != INVALID_SOCKET)
+                closesocket(m_listenSocket);
 }
 
 

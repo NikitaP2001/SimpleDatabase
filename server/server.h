@@ -4,6 +4,8 @@
 #include <mutex>
 #include <string>
 
+#include <json.hpp>
+
 #include "connection.h"
 #include "main.h"
 
@@ -22,18 +24,16 @@ public:
 private:
         void runConnections() noexcept;
 
+        bool receiveAndExecute();
+
+        nlohmann::json receiveJson();
 private:
 
         bool m_initialized = true;
-        
-        std::mutex m_connectionsMutex;
-
-        std::thread m_connectionsRunner;
-        bool m_isRunning = true;
 
         std::list<std::unique_ptr<connection::Connection>> m_connections;
 
-        SOCKET m_listenSocket;
+        SOCKET m_listenSocket = INVALID_SOCKET;
 };
 
 } // server
