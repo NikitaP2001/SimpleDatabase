@@ -23,7 +23,7 @@ int __cdecl main(int argc, char **argv)
 
         Client clt(host, port);
         if (clt.initilized()) {
-                if (clt.execute("select id from file", "testdb", res, errorStr)) {
+                if (clt.execute("select id, name from file", "testdb", res, errorStr)) {
                         for (auto &col : res) {
                                 std::cout << col.name << std::endl;
                                 for (auto &val : col.values) {
