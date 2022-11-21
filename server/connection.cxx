@@ -50,9 +50,10 @@ nlohmann::json Connection::receiveJson()
                         buffer += recvBuf.get();
                 } else if (iResult == 0) {
                         iResult = 0;
+                        break;
                 } else if (iResult < 0)
                         throw std::runtime_error("recv failed");
-        } while(msgEnd);
+        } while(!msgEnd);
         nlohmann::json json = nlohmann::json::parse(buffer);
         return json;
 }
