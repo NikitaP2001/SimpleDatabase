@@ -80,6 +80,7 @@ bool Client::recvResult(std::vector<Column> &cols, std::string &strErr)
                                 status = false;
                                 break;
                         } else {
+                                col.values.clear();
                                 col.name = key;
                                 for (auto &val : vals.items())
                                         col.values.push_back(getDbValue(val.value()));
