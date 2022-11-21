@@ -18,6 +18,7 @@ QMAKE_CXXFLAGS += -std=c++17
 # Input
 SOURCES += main.cxx \
     ../../DbValue.cxx \
+    ../../client/client.cxx \
     ../../database.cxx \
     ../../error.cpp \
     ../../lexer.cxx \
@@ -30,6 +31,7 @@ FORMS += \
 
 HEADERS += \
     ../../DbValue.h \
+    ../../client/client.h \
     ../../database.h \
     ../../error.hpp \
     ../../lexer.h \

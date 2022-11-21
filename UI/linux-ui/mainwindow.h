@@ -20,7 +20,7 @@ class MainWindow : public QMainWindow
 
         enum Forms {
                 CREATE_FORM,
-                QUERY_FORM
+                QUERY_FORM,
         };
 
 public:
@@ -32,6 +32,10 @@ protected:
 
 private:
 
+        void executeRemote();
+
+        void executeLocal();
+
         void executeQuery();
 
         void showOnTop(Forms form);
@@ -42,12 +46,15 @@ private:
 
         void openLocal();
 
+        void openRemote();
+
         void clearGrid();
 
 private:
         std::unique_ptr<Ui::MainWindow> m_ui;
         std::vector<QFrame*> m_windows;
         std::string m_databasePath;
+        std::string m_databaseAddr;
 };
 
 #endif // MAINWINDOW_H

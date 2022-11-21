@@ -1,7 +1,17 @@
 #include <string>
 
+#ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#else
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
+
+using SOCKET = int;
+#define INVALID_SOCKET -1
+#endif
+
 
 #include <json.hpp>
 
@@ -39,6 +49,5 @@ private:
         bool m_initilized = true;
 
         constexpr static int m_kRecvBufSize = 1024;
-
 
 };

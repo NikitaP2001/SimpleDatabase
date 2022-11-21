@@ -1,9 +1,16 @@
 #include <memory>
 #include <stdexcept>
 
+#ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
+#else
+#include <unistd.h>
+#define SOCKET_ERROR -1
+#define SD_SEND SHUT_WR
+const auto closesocket = close;
+#endif
 
 #include <error.hpp>
 
@@ -80,6 +87,7 @@ bool Client::recvResult(std::vector<Column> &cols, std::string &strErr)
                                 status = false;
                                 break;
                         } else {
+                                col.values.clear();
                                 col.name = key;
                                 for (auto &val : vals.items())
                                         col.values.push_back(getDbValue(val.value()));

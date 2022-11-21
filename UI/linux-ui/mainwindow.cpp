@@ -3,9 +3,10 @@
 #include <QMessageBox>
 #include <QTranslator>
 #include <QFileDialog>
+#include <QInputDialog>
 #include <QKeyEvent>
 
-
+#include <client/client.h>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -31,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
         }
 
         connect(m_ui->create_btnLocal, &QPushButton::clicked, this, &MainWindow::openLocal);
+        connect(m_ui->create_btnRemote, &QPushButton::clicked, this, &MainWindow::openRemote);
         connect(m_ui->query_btnOpen, &QPushButton::clicked, this, &MainWindow::showOpen);
         connect(m_ui->query_btnonExec, &QPushButton::clicked, this, &MainWindow::executeQuery);
 
@@ -67,7 +69,8 @@ void MainWindow::displayOnGrid(database::Response &res)
         }
 }
 
-void MainWindow::executeQuery()
+
+void MainWindow::executeLocal()
 {
         Lexer lex;
         Storage st(m_databasePath);
@@ -112,6 +115,43 @@ void MainWindow::executeQuery()
 }
 
 
+void MainWindow::executeRemote()
+{
+        std::string errorStr;
+        std::string port = "1337";
+        std::vector<Column> cols;
+
+        std::string squery = m_ui->query_Edit->text().toStdString();
+        Client clt(m_databaseAddr, port);
+        if (clt.initilized()) {
+                if (clt.execute(squery, "testdb", cols, errorStr)) {
+                        database::Response res;
+                        for (auto &col : cols)
+                                res.pushColumn(col);
+                        displayOnGrid(res);
+                } else {
+                        QMessageBox::warning(this, tr("Failture"),
+                        tr(errorStr.c_str()));
+                }
+
+        } else {
+                ERR("error not initilized");
+        }
+}
+
+
+void MainWindow::executeQuery()
+{
+        if (!m_databaseAddr.empty())
+                executeRemote();
+        else if (!m_databasePath.empty())
+                executeLocal();
+        else
+                QMessageBox::critical(this, tr("Error"),
+                tr("Database not provided"));
+}
+
+
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
         if((event->key() == Qt::Key_Enter) || (event->key() == Qt::Key_Return))
@@ -131,8 +171,26 @@ void MainWindow::openLocal()
                 tr("Failed to get database path"));
         } else {
                 m_databasePath = dbDir.toStdString();
+                m_databaseAddr.clear();
                 clearGrid();
                 showOnTop(QUERY_FORM);
+        }
+}
+
+void MainWindow::openRemote()
+{
+        bool ok;
+        QString text = QInputDialog::getText(this, tr("Open remote"),
+                                             tr("server name"), QLineEdit::Normal,
+                                             "127.0.0.1", &ok);
+        if (ok && !text.isEmpty()) {
+                m_databaseAddr = text.toStdString();
+                m_databasePath.clear();
+                clearGrid();
+                showOnTop(QUERY_FORM);
+        } else {
+                QMessageBox::critical(this, tr("Error"),
+                tr("Provide valud server name"));
         }
 }
 
@@ -146,6 +204,7 @@ void MainWindow::showOpen()
         m_databasePath.clear();
         showOnTop(CREATE_FORM);
 }
+
 
 MainWindow::~MainWindow()
 {
