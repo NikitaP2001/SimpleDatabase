@@ -125,7 +125,7 @@ bool Connection::sendJson(const nlohmann::json &json)
         bool result = true;
 
         std::string &&strJson = json.dump();
-        iResult = send(m_socket, strJson.c_str(), strJson.size(), 0);
+        iResult = send(m_socket, strJson.c_str(), strJson.size() + 1, 0);
         if (iResult == SOCKET_ERROR) {
                 ERR("send failed");
                 result = false;

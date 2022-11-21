@@ -42,7 +42,7 @@ bool Client::sendQuery(std::string query, std::string database)
         json["database"] = database;
 
         std::string &&strJson = json.dump();
-        iResult = send(m_connectSocket, strJson.c_str(), strJson.size(), 0);
+        iResult = send(m_connectSocket, strJson.c_str(), strJson.size() + 1, 0);
         if (iResult == SOCKET_ERROR) {
                 ERR("send failed");
                 result = false;
@@ -68,9 +68,10 @@ nlohmann::json Client::receiveJson()
                         buffer += recvBuf.get();
                 } else if (iResult == 0) {
                         iResult = 0;
+                        break;
                 } else if (iResult < 0)
                         throw std::runtime_error("recv failed");
-        } while(msgEnd);
+        } while(!msgEnd);
         nlohmann::json json = nlohmann::json::parse(buffer);
         return json;
 }
