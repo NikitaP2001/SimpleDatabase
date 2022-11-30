@@ -1,0 +1,32 @@
+==================================sql bnf=================================
+<query> = <selection> | <deletion> | <insertion> | <creation> | <drop>
+
+<selection> = <select-query> INTERSECT <selection> | <select-query>
+
+<select-query> = SELECT <col-names> FROM <table-name> WHERE <expression> |
+				SELECT <col-names> FROM <table-name> 				 
+		 
+<expression> = <primary-expression> <operator> <primary-expression>
+			| <identifier> IN ( <selection> ) | <identifier> IN (<values>)
+					
+<deletion> = DELETE FROM <table-name> WHERE <expression>
+			| DELETE FROM <table-name>
+			
+<drop> = DROP <table-name>			
+			
+<creation> = CREATE <table-name> (<column-definitions>)
+
+<column-definitions> = <identifier> <type> , <column-definitions> | <identifier> <type>
+<type> = string | integer | real | char | date | datelnvl
+			
+<insertion> = INSERT INTO <table-name> (<col-names>) VALUES (<values>)
+
+<primary-expression> = <identifier> | <literal>
+<col-names> = identifier> , <col-names> | <identifier>
+<table-name> = <identifier>
+<values> = <literal>, <values> | <literal>
+==============================================================================
+<operator> = { >, <, <=, >=, =, !=}
+<identifier> = {A..Za..z}
+<literal> = '<integer>' | '<real>' | '<char>' | '<string>' | '<date>'
+<date> = 2014-07-25 | 2014-07-25-2014-07-26
