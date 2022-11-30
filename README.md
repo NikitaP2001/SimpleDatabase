@@ -8,8 +8,8 @@
 
 ###  [Eтап 3] - графічнй інтерфейс
 
-   [Eтап 0]: <https://github.com/joemccann/dillinger>
+   [Eтап 0]: <https://github.com/NikitaP2001/SimpleDatabase/blob/master/docs/0.md>
    [Eтап 1]: <https://github.com/joemccann/dillinger>
    [Eтап 2]: <https://github.com/joemccann/dillinger>
    [Eтап 3]: <https://github.com/joemccann/dillinger>
-   [синтаксис]: <https://github.com/joemccann/dillinger>
+   [синтаксис]: <https://github.com/NikitaP2001/SimpleDatabase/blob/master/docs/bnf.txt>
