@@ -1,5 +1,3 @@
-# Проект база даних
-Реалізація розподіленої бази даних основаній на спрощеному sql  [синтаксисі]
 ###  [Eтап 0] - use-case діаграма
 
 ###  [Eтап 1] - база даних, консольний інтерфейс та тести
@@ -8,7 +6,7 @@
 
 ###  [Eтап 3] - графічнй інтерфейс qt5
 
-###  [Етап 4] - Android socket client
+###  [Eтап 4] - Android socket client
 
    [Eтап 0]: <https://github.com/NikitaP2001/SimpleDatabase/blob/master/docs/0.md>
    [Eтап 1]: <https://github.com/NikitaP2001/SimpleDatabase/blob/master/docs/1.md>
