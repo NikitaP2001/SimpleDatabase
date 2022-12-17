@@ -1,6 +1,7 @@
 #include <thread>
 #include <mutex>
 
+#include "main.h"
 #include "lexer.h"
 #include "database.h"
 #include "parser.h"
@@ -12,15 +13,16 @@ using namespace connection;
 using namespace lexer;
 
 Connection::Connection(SOCKET socket) noexcept
-        : m_socket(socket),
-        m_loopThread(&Connection::receiveAndExecute, this)
+        : m_socket(socket)
 {
-
+        m_loopThread = CreateThread(NULL, 0, reinterpret_cast<
+        LPTHREAD_START_ROUTINE>(&receiveAndExecute), this, 0, NULL);
 }
 
 
 Connection::~Connection()
 {
+        WaitForSingleObject(m_loopThread, INFINITE);
         if (m_socket != INVALID_SOCKET) {
                 if (shutdown(m_socket, SD_SEND) == SOCKET_ERROR)
                         ERR("shutdown failed");
@@ -41,13 +43,14 @@ nlohmann::json Connection::receiveJson()
         std::string buffer;
         std::unique_ptr<char[]> recvBuf = std::make_unique<char[]>(m_kRecvBufSize);
         do {
-                iResult = recv(m_socket, recvBuf.get(), m_kRecvBufSize, 0);
+                iResult = recv(m_socket, recvBuf.get(), m_kRecvBufSize, 0);				
                 if (iResult > 0) {
                         if (recvBuf[iResult - 1] == '\0')
                                 msgEnd = true;
                         else
-                                recvBuf[iResult] = '\0';
+                                recvBuf[iResult] = '\0';						
                         buffer += recvBuf.get();
+						INFO("recvd" << buffer);
                 } else if (iResult == 0) {
                         iResult = 0;
                         break;
@@ -135,8 +138,9 @@ bool Connection::sendJson(const nlohmann::json &json)
         return result;
 }
 
-bool Connection::receiveAndExecute()
+void Connection::receiveAndExecute()
 {
+		INFO("waiting to receive");
         std::string errStr;
         std::vector<Column> cols;
         nlohmann::json errJson;
@@ -158,11 +162,11 @@ bool Connection::receiveAndExecute()
         }
 
         if (!status) {
+				INFO("error" << errStr);
                 errJson["_error_"] = errStr;
                 sendJson(errJson);
         }
 
 
         m_continue = false;
-        return status;
 }

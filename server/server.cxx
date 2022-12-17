@@ -55,7 +55,7 @@ bool Server::waitConnections() noexcept
         bool status = true;
         SOCKET clientSocket {};
 
-        while (status) {
+        while (status) {				
                 clientSocket = accept(m_listenSocket, NULL, NULL);
                 if (clientSocket == INVALID_SOCKET) {
                         ERR("accept failed");
@@ -69,6 +69,7 @@ bool Server::waitConnections() noexcept
                         status = false;
                         LocalFree(s);
                 } else {
+						INFO("connection accepted");
                         m_connections.push_back( std::make_unique<
                         connection::Connection>(clientSocket));
                 }

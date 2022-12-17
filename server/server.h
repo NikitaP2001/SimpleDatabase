@@ -6,8 +6,8 @@
 
 #include <json.hpp>
 
-#include "connection.h"
 #include "main.h"
+#include "connection.h"
 
 namespace server {
 

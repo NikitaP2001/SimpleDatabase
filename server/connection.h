@@ -4,21 +4,19 @@
 
 #include <DbValue.h>
 
-#include "main.h"
-
 namespace connection {
 
 class Connection {
 
 public:
-        explicit Connection (SOCKET socket) noexcept;
+        explicit Connection(SOCKET socket) noexcept;
 
         [[nodiscard]] bool operator()() const noexcept;
 
         ~Connection();
 
 private:
-        bool receiveAndExecute();
+        void receiveAndExecute();
 
         bool execute(IN std::string command, 
                         IN std::string database,
@@ -36,7 +34,7 @@ private:
 
         bool m_continue = true;
 
-        std::thread m_loopThread;
+        HANDLE m_loopThread;
 
         constexpr static int m_kRecvBufSize = 1024;
 };

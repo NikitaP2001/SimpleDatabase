@@ -1,5 +1,3 @@
-SHELL=cmd.exe
-
 TARGET=$(BINPATH)/cli.exe
 
 CPP_SRC = $(wildcard *.cxx)
@@ -7,7 +5,7 @@ OBJECTS += $(CPP_SRC:.cxx=.o)
 
 
 %.o: %.cxx
-	@echo CC $<
+	$(info CC $<)
 	$(CC) $(CCFLAGS) -o $@ $<
 
 all: CCFLAGS += $(DBG_CCFLAGS)
@@ -18,7 +16,7 @@ release: LDFLAGS += $(RLS_LDFLAGS)
 release: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	@echo LD $@
+	$(info LD $@)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 .PHONY: clean
