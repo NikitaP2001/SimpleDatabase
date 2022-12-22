@@ -5,6 +5,12 @@
 
 #include "DbValue.h"
 
+#if _MSC_VER
+#define TIMEZONE _timezone
+#else
+#define TIMEZONE timezone	
+#endif
+
 std::shared_ptr<DbValue> getDbValue(std::string literal)
 {
         std::shared_ptr<DbValue> result;
@@ -164,7 +170,7 @@ bool DbDate::SetValue(std::string literal)
                 ss >> std::get_time(&dt, dateTimeFormat.c_str());
 
                 if (!ss.fail()) {
-                        m_time = std::mktime(&dt) - timezone;
+                        m_time = std::mktime(&dt) - TIMEZONE;
                         status = true;
                 }
         } catch (std::exception &ex) {
@@ -215,8 +221,8 @@ bool DbDateLnvl::SetValue(std::string literal)
                 if (ss.get() == '-') {
                         ss >> std::get_time(&dt2, dateTimeFormat.c_str());
                         if (!ss.fail()) {
-                                m_time1 = std::mktime(&dt1) - timezone;
-                                m_time2 = std::mktime(&dt2) - timezone;
+                                m_time1 = std::mktime(&dt1) - TIMEZONE;
+                                m_time2 = std::mktime(&dt2) - TIMEZONE;
                                 status = true;
                         }
                 }

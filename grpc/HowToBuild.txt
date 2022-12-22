@@ -1,0 +1,6 @@
+with vs2015 build tools
+
+cmake .. -DCMAKE_TOOLCHAIN_FILE=D:/src/vcpkg/scripts/buildsystems/vcpkg.cmake
+cmake --build .
+
+Then you can onpen project from visual studio and build || run || debug from there

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package db;
+
+import "myproto/address.proto";
+
+message DbQuery {
+    string command = 1;
+}
+
+service DbService {
+    rpc Execute(DbQuery) returns (Table) {}
+}
