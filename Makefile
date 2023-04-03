@@ -13,7 +13,7 @@ TEST_SRC = $(wildcard $(TEST_DIR)/*.cxx)
 # expect gnu c++
 CC=@c++
 LD=@c++
-RM=@-del /q 2>NUL
+RM=@-rm -rf
 
 CCFLAGS = -c -I $(INC_DIR) --std=c++20
 DBG_CCFLAGS = -DDEBUG -g
